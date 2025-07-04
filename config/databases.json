@@ -4,7 +4,7 @@
       {
         "name": "reserve_estimation",
         "dialect": "postgresql",
-        "uri": "psotgresql_db_uri>"
+        "uri": "<postgresql_db_uri>"
       }
     ],
     "mysql_databases": [
