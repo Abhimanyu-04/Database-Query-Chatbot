@@ -1,0 +1,45 @@
+{
+"databases": [
+    {
+    "name": "reserve_estimation",
+    "type": "sql",
+    "description": "Tracks reserve availability, requirements, and procurement at fixed 15-minute intervals.",
+    "tables": [
+        {
+            "name": "ai_available_res",
+            "description": "All-India reserve availability values at each timestamp. Columns:\n• id (PK): unique row identifier\n• timestamp: date & time at 15-minute granularity\n• timeblock: integer 1–96 indicating which 15-min slice of the day\n• ai_up: available ‘up’ reserves for all India\n• ai_down: available ‘down’ reserves for all India\n• ai_act_up: actual measured ‘up’ reserves for all India\n• ai_act_down: actual measured ‘down’ reserves for all India"
+        },
+        {
+            "name": "estimated_reserve",
+            "description": "Regional and all-India reserve requirements. Columns:\n• id (PK): unique row identifier\n• timestamp: date & time at 15-minute granularity\n• timeblock: integer 1–96 for each 15-min slice of the day\n• nr_up: ‘up’ reserves needed in Northern region\n• wr_up: ‘up’ reserves needed in Western region\n• sr_up: ‘up’ reserves needed in Southern region\n• ner_up: ‘up’ reserves needed in Northern Eastern region\n• er_up: ‘up’ reserves needed in Eastern region\n• nr_down: ‘down’ reserves needed in Northern region\n• wr_down: ‘down’ reserves needed in Western region\n• sr_down: ‘down’ reserves needed in Southern region\n• ner_down: ‘down’ reserves needed in Northern Eastern region\n• er_down: ‘down’ reserves needed in Eastern region\n• ai_up: total all-India ‘up’ requirement (sum of the five regional up reserve values)\n• ai_down: total all-India ‘down’ requirement (sum of the five regional down reserve values)"
+        },
+        {
+            "name": "procurement",
+            "description": "Procurement amounts needed to meet reserve requirements. Columns:\n• id (PK): unique row identifier\n• timestamp: date & time at 15-minute granularity\n• timeblock: integer 1–96 for each 15-min slice of the day\n• pr_up: ‘up’ reserves to procure (estimated_requirements.ai_up − available.ai_up)\n• pr_down: ‘down’ reserves to procure (estimated_requirements.ai_down − available.ai_down)\n• avl_ai_id: FK → ai_available_res(id)\n• est_ai_id: FK → estimated_reserve(id)"
+        }
+    ]
+    },
+    {
+    "name": "demand_data",
+    "type": "mongo",
+    "description": "Recorded system load at 15-minute intervals.",
+    "tables": [
+        {
+            "name": "demand",
+            "description": "Fields:\n• _id: document identifier\n• timestamp (ISODate): date & time at 15-minute granularity\n• demand: measured system load at that timestamp"
+        }
+    ]
+    },
+    {
+    "name": "dsm",
+    "type": "sql",
+    "description": "DSM rates by region at 15-minute intervals.",
+    "tables": [
+        {
+            "name": "dsm_dump",
+            "description": "Columns:\n• id (PK): unique row identifier\n• timestamp: date & time at 15-minute granularity\n• timeblock: integer 1–96 for each 15-min slice of the day\n• a1, a2, e1, e2, n1, n2, n3, s1, s2, s3, w1, w2, w3: DSM rate for each region\n• ir_cross: cross-region imbalance rate\n• rras_rev, agc_rev, dam_rev, gdam_rev, rtm_rev: ancillary market revenues\n• remarks: free-text notes or flags"
+        }
+    ]
+    }
+]
+}

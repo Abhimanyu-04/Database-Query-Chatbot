@@ -1,0 +1,26 @@
+
+{
+    "postgres_databases": [
+      {
+        "name": "reserve_estimation",
+        "dialect": "postgresql",
+        "uri": "psotgresql_db_uri>"
+      }
+    ],
+    "mysql_databases": [
+      {
+        "name": "dsm",
+        "dialect": "mysql",
+        "uri": "<mysql_db_uri>"
+      }
+    ],
+    "mongo_databases": [
+      {
+        "name": "demand_data",
+        "uri": "<mongo_db_uri>",
+        "db_name": "demand_data",
+        "collection_name": "demand"
+      }
+    ]
+  }
+  

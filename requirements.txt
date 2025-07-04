@@ -1,0 +1,14 @@
+langchain
+langchain-openai
+langchain-community
+langchain-google-genai
+sentence-transformers
+faiss-cpu
+sqlalchemy
+psycopg2-binary
+pymysql
+pymongo
+python-dotenv
+pydantic
+cryptography
+streamlit

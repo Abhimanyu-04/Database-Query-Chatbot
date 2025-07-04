@@ -1,0 +1,45 @@
+{
+    "databases": [
+    {
+        "name": "reserve_estimation",
+        "type": "sql",
+        "summary": "Contains estimated and actual reserve and procurement data with timestamps.",
+        "tables": [
+        {
+            "name": "ai_available_res",
+            "description": "Contains estimated up/down values of all India (AI) and actual up/down values of all India(AI_act) present in the grids."
+        },
+        {
+            "name": "estimated_reserve",
+            "description": "Contains estimated up and down values for Northern region(NR), Wester region(WR), South region(SR), Northern Eastern region(NER), East region(ER) and all India(AI) required."
+        },
+        {
+            "name": "procurement",
+            "description": "Procurement orders linking actual and estimated reserves."
+        }
+        ]
+    },
+    {
+        "name": "demand_data",
+        "type": "mongo",
+        "summary": "Stores power demand readings at 15 minutes timeblocks.",
+        "tables": [
+        {
+            "name": "demand",
+            "description": "Documents with fields timestamp and demand. Stores value of pwer demanded at 15 minutes timeblocks"
+        }
+        ]
+    },
+    {
+        "name": "dsm",
+        "type": "sql",
+        "summary": "Daily sales metrics by region.",
+        "tables": [
+        {
+            "name": "dsm_dump",
+            "description": "Aggregated sales_amount per 15 minute timeblocks per region (regions are a1, a2, e1, e2, n1, n2, n3, s1, s2, s3, w1, w2, w3, ir_cross, rras_rev, agc_rev, dam_rev, gdam_rev, rtm_rev) and remarks."
+        }
+        ]
+    }
+    ]
+}

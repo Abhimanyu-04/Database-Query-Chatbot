@@ -1,0 +1,434 @@
+[
+  {
+    "input": "What was the power demand at 2021-01-01 00:00 UTC?",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({timestamp: ISODate(\"2021-01-01T00:00:00.000Z\")}, {_id:0,demand:1})"
+      }
+    ]
+  },
+  {
+    "input": "List the last 5 power demand readings.",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({}, {_id:0,timestamp:1,demand:1}).sort({timestamp:-1}).limit(5)"
+      }
+    ]
+  },
+  {
+    "input": "What was the highest AI_act_down value on 2023-04-08?",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT MAX(ai_act_down) FROM ai_available_res WHERE DATE(timestamp) = '2023-04-08';"
+      }
+    ]
+  },
+  {
+    "input": "Give me the average nr_down for April 8, 2023.",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT AVG(nr_down) FROM estimated_reserve WHERE DATE(timestamp) = '2023-04-08';"
+      }
+    ]
+  },
+  {
+    "input": "At 2023-04-08 00:15, what were pr_up and pr_down?",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT pr_up, pr_down FROM procurement WHERE timestamp = '2023-04-08 00:15:00';"
+      }
+    ]
+  },
+  {
+    "input": "When was the highest power demand, and what predicted AI_up was at that time?",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find().sort({demand:-1}).limit(1).projection({timestamp:1})"
+      },
+      {
+        "step": 2,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT ai_up FROM estimated_reserve WHERE timestamp = '{step1.timestamp}';"
+      }
+    ]
+  },
+  {
+    "input": "Compare actual A1 DSM rate with actual AI_down at 2023-04-08 00:30.",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT ai_act_down FROM ai_available_res WHERE timestamp = '2023-04-08 00:30:00';"
+      },
+      {
+        "step": 2,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT a1 FROM dsm_dump WHERE timestamp = '2023-04-08 00:30:00';"
+      }
+    ]
+  },
+  {
+    "input": "When did DSM region S3 peak on April 8 and how much NR_up was predicted then?",
+    "query": [
+      {
+        "step": 1,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT timestamp, s3 FROM dsm_dump WHERE DATE(timestamp) = '2023-04-08' ORDER BY s3 DESC LIMIT 1;"
+      },
+      {
+        "step": 2,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT nr_up FROM estimated_reserve WHERE timestamp = '{step1.timestamp}';"
+      }
+    ]
+  },
+  {
+    "input": "What was the total power consumed between 00:00 and 01:00 on Jan 1, 2021?",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({timestamp:{$gte:ISODate(\"2021-01-01T00:00:00Z\"),$lt:ISODate(\"2021-01-01T01:00:00Z\")}},{_id:0,demand:1})"
+      },
+      {
+        "step": 2,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.aggregate([{$match:{timestamp:{$gte:ISODate(\"2021-01-01T00:00:00Z\"),$lt:ISODate(\"2021-01-01T01:00:00Z\")}}},{$group:{_id:null,total:{$sum:\"$demand\"}}}])"
+      }
+    ]
+  },
+  {
+    "input": "For 2023-04-08 00:45, list all three reserve types (nr_up, sr_up, wr_up).",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT nr_up, sr_up, wr_up FROM estimated_reserve WHERE timestamp = '2023-04-08 00:45:00';"
+      }
+    ]
+  },
+  {
+    "input": "How did procurement pr_up compare to pr_down when AI predicted down was highest on April 8?",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT timestamp FROM estimated_reserve WHERE DATE(timestamp) = '2023-04-08' ORDER BY ai_down DESC LIMIT 1;"
+      },
+      {
+        "step": 2,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT pr_up, pr_down FROM procurement WHERE timestamp = '{step1.timestamp}';"
+      }
+    ]
+  },
+  {
+    "input": "Get actual down reserve for All India at 2023-04-08 00:00:00",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT ai_act_down FROM ai_available_res WHERE timestamp = '2023-04-08 00:00:00';"
+      }
+    ]
+  },
+  {
+    "input": "Find maximum power demand recorded",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find().sort({demand:-1}).limit(1).projection({_id:0, demand:1})"
+      }
+    ]
+  },
+  {
+    "input": "Get sales amount for region s2 during timeblock 2 on 2023-02-12",
+    "query": [
+      {
+        "step": 1,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT s2 FROM dsm_dump WHERE timeblock = 2 AND timestamp::date = '2023-02-12';"
+      }
+    ]
+  },
+  {
+    "input": "Compare estimated vs actual up reserves at 2023-04-08 00:15:00",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT a.ai_up AS available, e.ai_up AS estimated FROM ai_available_res a JOIN estimated_reserve e ON a.timestamp = e.timestamp WHERE a.timestamp = '2023-04-08 00:15:00';"
+      }
+    ]
+  },
+  {
+    "input": "Find procurement down value when Western region required reserve was highest",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT timestamp FROM estimated_reserve ORDER BY wr_up DESC LIMIT 1;"
+      },
+      {
+        "step": 2,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT pr_down FROM procurement WHERE timestamp = '{step1.timestamp}';"
+      }
+    ]
+  },
+  {
+    "input": "Calculate total estimated reserves for Southern region across all timeblocks on 2023-04-08",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT SUM(sr_up) AS total_sr_up, SUM(sr_down) AS total_sr_down FROM estimated_reserve WHERE timestamp::date = '2023-04-08';"
+      }
+    ]
+  },
+  {
+    "input": "Get power demand and corresponding reserves procurement at 2023-04-08 00:30:00",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({timestamp: ISODate('2023-04-08T00:30:00.000Z')}, {_id:0, demand:1})"
+      },
+      {
+        "step": 2,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT pr_up, pr_down FROM procurement WHERE timestamp = '2023-04-08 00:30:00';"
+      }
+    ]
+  },
+  {
+    "input": "Find regions with sales exceeding 800 in timeblock 1 on 2023-02-12",
+    "query": [
+      {
+        "step": 1,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT region, value FROM (SELECT unnest(ARRAY['a1','a2','e1','e2','n1','n2','n3','s1','s2','s3','w1','w2','w3']) AS region, unnest(ARRAY[a1,a2,e1,e2,n1,n2,n3,s1,s2,s3,w1,w2,w3]) AS value FROM dsm_dump WHERE timeblock = 1 AND timestamp = '2023-02-12 00:00:00') t WHERE value > 800;"
+      }
+    ]
+  },
+  {
+    "input": "Calculate reserve shortage percentage for up reserves at 2023-04-08 00:00:00",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT ((e.ai_up - a.ai_up) / e.ai_up * 100) AS shortage_pct FROM estimated_reserve e JOIN ai_available_res a ON e.timestamp = a.timestamp WHERE e.timestamp = '2023-04-08 00:00:00';"
+      }
+    ]
+  },
+  {
+    "input": "Find timeblocks where actual reserves were below estimated requirements",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT a.timeblock, a.timestamp FROM ai_available_res a JOIN estimated_reserve e ON a.timestamp = e.timestamp WHERE a.ai_up < e.ai_up OR a.ai_down < e.ai_down;"
+      }
+    ]
+  },
+  {
+    "input": "Get average sales for region n3 across all timeblocks",
+    "query": [
+      {
+        "step": 1,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT AVG(n3) AS avg_n3_sales FROM dsm_dump;"
+      }
+    ]
+  },
+  {
+    "input": "Find procurement values when power demand exceeded 150000 MW",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({demand: {$gt: 150000}}, {_id:0, timestamp:1, demand:1})"
+      },
+      {
+        "step": 2,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT pr_up, pr_down FROM procurement WHERE timestamp IN ({step1.timestamps});"
+      }
+    ]
+  },
+  {
+    "input": "Calculate total reserve requirement for Northern region on 2023-04-08",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT SUM(nr_up) AS total_nr_up, SUM(nr_down) AS total_nr_down FROM estimated_reserve WHERE timestamp::date = '2023-04-08';"
+      }
+    ]
+  },
+  {
+    "input": "Find regions with highest sales variance during timeblock 3",
+    "query": [
+      {
+        "step": 1,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT region, variance FROM (SELECT unnest(ARRAY['a1','a2','e1','e2','n1','n2','n3','s1','s2','s3','w1','w2','w3']) AS region, unnest(ARRAY[var_pop(a1), var_pop(a2), var_pop(e1), var_pop(e2), var_pop(n1), var_pop(n2), var_pop(n3), var_pop(s1), var_pop(s2), var_pop(s3), var_pop(w1), var_pop(w2), var_pop(w3)]) AS variance FROM dsm_dump WHERE timeblock = 3) t ORDER BY variance DESC LIMIT 3;"
+      }
+    ]
+  },
+  {
+    "input": "Get reserve metrics and power demand at peak procurement time",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT timestamp FROM procurement ORDER BY pr_up DESC LIMIT 1;"
+      },
+      {
+        "step": 2,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT * FROM procurement WHERE timestamp = '{step1.timestamp}';"
+      },
+      {
+        "step": 3,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({timestamp: ISODate('{step1.timestamp}')}, {_id:0, demand:1})"
+      }
+    ]
+  },
+  {
+    "input": "what was down reserves to be procured and dsm rate in region a2 on 9 april, 2023 at 12 AM?",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT pr_down FROM procurement WHERE timestamp='2023-04-09 00:00:00';"
+      },
+      {
+        "step": 2,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT a2 FROM dsm_dump WHERE timestamp = '2023-04-09 00:00:00';"
+      }
+    ]
+  },
+  {
+    "input": "What was power demand and dsm rate in region a2 on 9 April, 2023 at 12 AM?",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({timestamp: ISODate('2023-04-09T00:00:00.000Z')}, {_id: 0, demand: 1})"
+      },
+      {
+        "step": 2,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT a2 FROM dsm_dump WHERE timestamp = '2023-04-09 00:00:00';"
+      }
+    ]
+  },
+  {
+    "input": "What was power demand when up reserves in northern region were highest in April 2024?",
+    "query": [
+      {
+        "step": 1,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT timestamp FROM estimated_reserve WHERE timestamp >= '2024-04-01' AND timestamp < '2024-05-01' ORDER BY nr_up DESC LIMIT 1;"
+      },
+      {
+        "step": 2,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({timestamp: ISODate('{step1.timestamp}')}, {_id: 0, demand: 1})"
+      }
+    ]
+  },
+  {
+    "input": "When power demand was maximum in 2023, what was the dsm rate in region a1?",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({timestamp: { $gte: ISODate('2023-01-01T00:00:00Z'), $lt: ISODate('2024-01-01T00:00:00Z') }}).sort({demand: -1}).limit(1).projection({timestamp: 1, _id: 0})"
+      },
+      {
+        "step": 2,
+        "database": "dsm",
+        "query_type": "sql",
+        "query": "SELECT a1 FROM dsm_dump WHERE timestamp = '{step1.timestamp}';"
+      }
+    ]
+  },
+  {
+    "input": "What was the value of All India up reserves when power demand was minimum in 2023?",
+    "query": [
+      {
+        "step": 1,
+        "database": "power_demand",
+        "query_type": "mongo",
+        "query": "db.demand.find({timestamp: { $gte: ISODate('2023-01-01T00:00:00Z'), $lt: ISODate('2024-01-01T00:00:00Z') }}).sort({demand: 1}).limit(1).projection({timestamp: 1, _id: 0})"
+      },
+      {
+        "step": 2,
+        "database": "reserve_estimation",
+        "query_type": "sql",
+        "query": "SELECT ai_up FROM ai_available_res WHERE timestamp = '{step1.timestamp}';"
+      }
+    ]
+  }
+]
+
